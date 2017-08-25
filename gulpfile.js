@@ -4,9 +4,8 @@ var gulp        = require('gulp'),
     reload      = browserSync.reload;
 
 var rutas = {
-    app: "dist",
-    js: rutas.app + "/js",
-    css: rutas.app + "/css",
+    js: "dist/js",
+    css: "dist/css",
     sass: "sass"
 }
 
@@ -17,15 +16,24 @@ gulp.task('server', ['sass'], function(){
     });
 
     /* Lugares donde el evento watch escucha cambios en archivos */
-    gulp.watch( rutas.sass + '/**/*.scss', ['sass']);
-    gulp.watch("*.html").on('change', reload );
+    gulp.watch( rutas.sass + '/**/*.sass', ['sass']);
+    gulp.watch("*.html",['html']);
 });
 
 /* Tarea Sass */
 gulp.task('sass',function(){
-    var stream = gulp.src([ rutas.sass + '/*.scss'])
-    .pipe(sass())
+    var stream = gulp.src([ rutas.sass + '/*.sass'])
+    .pipe(sass()).on('error', sass.logError)
     .pipe(gulp.dest( rutas.css ))
+    .pipe(browserSync.stream());
+
+    return stream;
+});
+
+/* Tarea html */
+gulp.task('html',function(){
+    var stream = gulp.src([ '*.html'])
+    .pipe(gulp.dest( 'dist' ))
     .pipe(browserSync.stream());
 
     return stream;
@@ -43,7 +51,7 @@ gulp.task('jsVendor',function(){
 /* Tarea fonts de iconos */
 gulp.task('fonts', function() {
     var stream = gulp.src('node_modules/font-awesome/fonts/*')
-    .pipe(gulp.dest( rutas.app + '/fonts'))
+    .pipe(gulp.dest( 'dist/fonts'))
 
     return stream;
 });
@@ -56,4 +64,4 @@ gulp.task('fa', function() {
     return stream;
 })
 
-gulp.task('default', ['jsVendor','fonts','fa','server']);
+gulp.task('default', ['jsVendor','fonts','html','fa','server']);

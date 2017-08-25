@@ -3,31 +3,38 @@ var gulp        = require('gulp'),
     browserSync = require('browser-sync').create(),
     reload      = browserSync.reload;
 
+var rutas = {
+    app: "dist",
+    js: rutas.app + "/js",
+    css: rutas.app + "/css",
+    sass: "sass"
+}
+
 /* Tarea Server */
 gulp.task('server', ['sass'], function(){
     browserSync.init({
-        server: "./src"  
+        server: "./dist"  
     });
 
     /* Lugares donde el evento watch escucha cambios en archivos */
-    gulp.watch(['node_modules/bootstrap/scss/bootstrap.scss', 'src/scss/*.scss'], ['sass']);
-    gulp.watch("src/*.html").on('change', reload );
+    gulp.watch( rutas.sass + '/**/*.scss', ['sass']);
+    gulp.watch("*.html").on('change', reload );
 });
 
 /* Tarea Sass */
 gulp.task('sass',function(){
-    var stream = gulp.src(['node_modules/bootstrap/scss/bootstrap.scss', 'src/scss/*.scss'])
+    var stream = gulp.src([ rutas.sass + '/*.scss'])
     .pipe(sass())
-    .pipe(gulp.dest('src/css'))
+    .pipe(gulp.dest( rutas.css ))
     .pipe(browserSync.stream());
 
     return stream;
 });
 
 /* Tarea Js */
-gulp.task('js',function(){
-    var stream =  gulp.src(['node_modules/bootstrap/dist/js/bootstrap.min.js', 'node_modules/jquery/dist/jquery.min.js','node_modules/popper.js/dist/umd/popper.min.js'])
-    .pipe(gulp.dest("src/js"))
+gulp.task('jsVendor',function(){
+    var stream =  gulp.src(['node_modules/jquery/dist/jquery.min.js'])
+    .pipe(gulp.dest(rutas.js))
     .pipe(browserSync.stream());
 
     return stream;
@@ -36,7 +43,7 @@ gulp.task('js',function(){
 /* Tarea fonts de iconos */
 gulp.task('fonts', function() {
     var stream = gulp.src('node_modules/font-awesome/fonts/*')
-    .pipe(gulp.dest('src/fonts'))
+    .pipe(gulp.dest( rutas.app + '/fonts'))
 
     return stream;
 });
@@ -44,9 +51,9 @@ gulp.task('fonts', function() {
 /* Tarea fa css de iconos */
 gulp.task('fa', function() {
     var stream = gulp.src('node_modules/font-awesome/css/font-awesome.min.css')
-    .pipe(gulp.dest('src/css'))
+    .pipe(gulp.dest(rutas.css))
 
     return stream;
 })
 
-gulp.task('default', ['js','fonts','fa','server']);
+gulp.task('default', ['jsVendor','fonts','fa','server']);

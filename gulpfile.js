@@ -1,7 +1,8 @@
 var gulp        = require('gulp'),
     sass        = require('gulp-sass'),
     browserSync = require('browser-sync').create(),
-    reload      = browserSync.reload;
+    reload      = browserSync.reload,
+    pug         = require('gulp-pug');
 
 var rutas = {
     js: "dist/js",
@@ -18,6 +19,7 @@ gulp.task('server', ['sass'], function(){
     /* Lugares donde el evento watch escucha cambios en archivos */
     gulp.watch( rutas.sass + '/**/*.sass', ['sass']);
     gulp.watch("*.html",['html']);
+    gulp.watch("views/*.pug",['views']);
 });
 
 /* Tarea Sass */
@@ -37,6 +39,15 @@ gulp.task('html',function(){
     .pipe(browserSync.stream());
 
     return stream;
+});
+
+gulp.task('views', function buildHTML() {
+    return gulp.src('views/index.pug')
+    .pipe(pug({
+        pretty: true
+    }))
+    .pipe(gulp.dest( 'dist' ))
+    .pipe(browserSync.stream());
 });
 
 /* Tarea Js */
@@ -64,4 +75,4 @@ gulp.task('fa', function() {
     return stream;
 })
 
-gulp.task('default', ['jsVendor','fonts','html','fa','server']);
+gulp.task('default', ['jsVendor','fonts','html','views','fa','server']);
